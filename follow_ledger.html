@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FollowFinder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#20261f;
+    --paper:#f2ede2;
+    --paper-2:#e9e2d2;
+    --line:#c9bfa8;
+    --moss:#3f5a44;
+    --moss-deep:#243328;
+    --rust:#a4522a;
+    --gold:#b5893a;
+    --white-ink:#faf7ef;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    background-image:
+      linear-gradient(var(--paper) 0%, var(--paper) 100%);
+  }
+
+  .wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:56px 28px 90px;
+  }
+
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+  }
+
+  .brand-mark{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    letter-spacing:0.14em;
+    color:var(--moss);
+    border:1px solid var(--moss);
+    padding:3px 8px;
+    border-radius:3px;
+  }
+
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(30px,4vw,44px);
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+
+  .tagline{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    color:#5c5646;
+    text-align:right;
+    max-width:260px;
+    line-height:1.5;
+  }
+
+  .intro{
+    font-size:15px;
+    line-height:1.65;
+    color:#40453d;
+    max-width:640px;
+    margin:20px 0 40px;
+  }
+  .intro strong{color:var(--ink);}
+
+  .panels{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+  }
+  @media (max-width:760px){
+    .panels{grid-template-columns:1fr;}
+    .tagline{text-align:left; max-width:none;}
+  }
+
+  .panel{
+    background:var(--white-ink);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:18px 18px 16px;
+    position:relative;
+  }
+
+  .panel-label{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+
+  .panel-label .num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--gold);
+    letter-spacing:0.08em;
+  }
+
+  .panel-label h2{
+    font-family:'Fraunces',serif;
+    font-size:19px;
+    font-weight:600;
+    margin:0;
+  }
+
+  .count-pill{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:2px 10px;
+    color:#54523f;
+  }
+
+  textarea{
+    width:100%;
+    height:220px;
+    resize:vertical;
+    background:transparent;
+    border:none;
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    line-height:1.6;
+    color:var(--ink);
+    outline:none;
+  }
+  textarea::placeholder{color:#a19a83;}
+
+  .run-row{
+    display:flex;
+    justify-content:center;
+    margin:30px 0 8px;
+  }
+
+  button.run{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13.5px;
+    letter-spacing:0.06em;
+    background:var(--moss-deep);
+    color:var(--white-ink);
+    border:none;
+    padding:14px 30px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease;
+  }
+  button.run:hover{background:var(--moss); transform:translateY(-1px);}
+  button.run:active{transform:translateY(0px);}
+
+  .hint{
+    text-align:center;
+    font-size:12px;
+    color:#7a7460;
+    margin-bottom:36px;
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  .results{
+    display:none;
+    margin-top:10px;
+  }
+  .results.show{display:block;}
+
+  .stats-row{
+    display:flex;
+    gap:16px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .stat{
+    flex:1;
+    min-width:140px;
+    background:var(--white-ink);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:14px 16px;
+  }
+  .stat .n{
+    font-family:'Fraunces',serif;
+    font-size:30px;
+    font-weight:700;
+    color:var(--moss-deep);
+    line-height:1;
+  }
+  .stat .l{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:#6b6650;
+    margin-top:6px;
+    letter-spacing:0.03em;
+  }
+
+  .ledger{
+    background:var(--white-ink);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+
+  .ledger-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .ledger-head h3{
+    font-family:'Fraunces',serif;
+    font-size:17px;
+    margin:0;
+    font-weight:600;
+  }
+  .ledger-head.rust h3{color:var(--rust);}
+  .ledger-head.moss h3{color:var(--moss-deep);}
+
+  .copy-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    background:none;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:5px 10px;
+    cursor:pointer;
+    color:#54523f;
+  }
+  .copy-btn:hover{background:var(--paper-2);}
+
+  ul.names{
+    list-style:none;
+    margin:0;
+    padding:0;
+    max-height:340px;
+    overflow-y:auto;
+  }
+  ul.names li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 18px;
+    border-bottom:1px solid #eee7d6;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13.5px;
+  }
+  ul.names li:last-child{border-bottom:none;}
+  ul.names li a{
+    color:var(--ink);
+    text-decoration:none;
+    border-bottom:1px solid var(--gold);
+  }
+  ul.names li a:hover{color:var(--rust);}
+  ul.names .idx{
+    color:#b7ae93;
+    font-size:11px;
+    width:26px;
+    text-align:right;
+  }
+
+  .empty-row{
+    padding:24px 18px;
+    font-size:13px;
+    color:#8a8570;
+    font-style:italic;
+  }
+
+  footer{
+    margin-top:50px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:#8a8570;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <span class="brand-mark">IG·SYNC</span>
+      <h1>FollowFinder</h1>
+    </div>
+    <div class="tagline">paste both lists → see who isn't square</div>
+  </header>
+
+  <p class="intro">Copy the text straight off the <strong>Followers</strong> and <strong>Following</strong> pages on Instagram. Every line is treated as an entry (both usernames and display names) — headers, "Search" lines, and "Followed by … more" lines are filtered out. Lines that appear in both lists cancel out, so the comparison still works correctly.</p>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-label">
+        <div>
+          <span class="num">01</span>
+          <h2 style="display:inline; margin-left:8px;">Followers</h2>
+        </div>
+      </div>
+      <textarea id="followersInput" placeholder="Followers
+
+Search
+Search
+username1
+profilename1
+username2
+profilename2
+..."></textarea>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">
+        <div>
+          <span class="num">02</span>
+          <h2 style="display:inline; margin-left:8px;">Following</h2>
+        </div>
+      </div>
+      <textarea id="followingInput" placeholder="Followers
+
+Search
+Search
+username1
+profilename1
+username2
+profilename2
+..."></textarea>
+    </div>
+  </div>
+
+  <div class="run-row">
+    <button class="run" id="runBtn">▸ FIND</button>
+  </div>
+  <div class="hint">nothing is uploaded anywhere — this all runs in your browser</div>
+
+  <div class="results" id="results">
+    <div class="ledger">
+      <div class="ledger-head rust">
+        <h3>Don't follow you back</h3>
+        <button class="copy-btn" data-target="listNotFollowingBack">copy list</button>
+      </div>
+      <ul class="names" id="listNotFollowingBack"></ul>
+    </div>
+
+    <div class="ledger">
+      <div class="ledger-head moss">
+        <h3>You don't follow back</h3>
+        <button class="copy-btn" data-target="listNotFollowedBack">copy list</button>
+      </div>
+      <ul class="names" id="listNotFollowedBack"></ul>
+    </div>
+  </div>
+
+  <footer>treats every line as an entry — filters "Following", "Followers", "Search", and "Followed by … more" lines; matching lines in both lists cancel out</footer>
+</div>
+
+<script>
+function isJunkLine(line) {
+  const lower = line.toLowerCase();
+  if (lower === 'following' || lower === 'followers' || lower === 'search') return true;
+  if (/^followed by\b/i.test(line)) return true; // "Followed by x + 90 more"
+  return false;
+}
+
+function extractUsernames(raw) {
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const usernames = new Set();
+
+  for (const line of lines) {
+    if (isJunkLine(line)) continue; // skip headers/search/"followed by" lines
+    usernames.add(line); // everything else counts as an entry
+  }
+  return usernames;
+}
+
+function renderList(elId, usernames) {
+  const ul = document.getElementById(elId);
+  ul.innerHTML = '';
+  if (usernames.length === 0) {
+    ul.innerHTML = '<li class="empty-row">— none —</li>';
+    return;
+  }
+  const usernamePattern = /^[a-zA-Z0-9._]+$/; // looks like a real IG handle, safe to link
+  usernames.forEach((u, i) => {
+    const li = document.createElement('li');
+    if (usernamePattern.test(u)) {
+      li.innerHTML = `<span class="idx">${i + 1}</span><a href="https://www.instagram.com/${encodeURIComponent(u)}/" target="_blank" rel="noopener">@${u}</a>`;
+    } else {
+      li.innerHTML = `<span class="idx">${i + 1}</span><span>${u}</span>`;
+    }
+    ul.appendChild(li);
+  });
+}
+
+document.getElementById('runBtn').addEventListener('click', () => {
+  const following = extractUsernames(document.getElementById('followingInput').value);
+  const followers = extractUsernames(document.getElementById('followersInput').value);
+
+  // "Don't follow you back": in Following, not in Followers
+  const notFollowingBack = [...following].filter(u => !followers.has(u)).sort((a,b)=>a.localeCompare(b));
+  // "You don't follow back": in Followers, not in Following
+  const notFollowedBack  = [...followers].filter(u => !following.has(u)).sort((a,b)=>a.localeCompare(b));
+
+  renderList('listNotFollowingBack', notFollowingBack);
+  renderList('listNotFollowedBack', notFollowedBack);
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const ul = document.getElementById(btn.dataset.target);
+    const names = [...ul.querySelectorAll('li')]
+      .filter(li => !li.classList.contains('empty-row'))
+      .map(li => li.textContent.replace(/^\d+/, '').trim());
+    navigator.clipboard.writeText(names.join('\n')).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'copied!';
+      setTimeout(() => btn.textContent = original, 1200);
+    });
+  });
+});
+</script>
+</body>
+</html>
